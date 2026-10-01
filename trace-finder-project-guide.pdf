@@ -1,0 +1,452 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Length 2513 >>
+stream
+BT
+/F1 9 Tf
+42 800 Td
+12 TL
+(Tracefinder Project Guide @page { size: A4; margin: 18mm 16mm; } body {) Tj
+0 -1.0 TD
+(font-family: Georgia, serif; color: #20252b; line-height: 1.45; font-size:) Tj
+0 -1.0 TD
+(10.5pt; } h1 { color: #173b57; font-size: 28pt; margin-bottom: 4pt; } h2 {) Tj
+0 -1.0 TD
+(color: #1d5b73; border-bottom: 1px solid #9eb8c5; padding-bottom: 3pt;) Tj
+0 -1.0 TD
+(margin-top: 20pt; page-break-after: avoid; } h3 { color: #315f68; margin-bottom:) Tj
+0 -1.0 TD
+(2pt; page-break-after: avoid; } p { margin: 5pt 0; } code, pre { font-family:) Tj
+0 -1.0 TD
+(Consolas, monospace; } code { background: #eef3f4; padding: 1px 3px; } pre {) Tj
+0 -1.0 TD
+(background: #f1f5f5; border-left: 3px solid #4d8790; padding: 8pt; white-space:) Tj
+0 -1.0 TD
+(pre-wrap; font-size: 8.5pt; } .file { color: #7a3e22; font-family: Consolas,) Tj
+0 -1.0 TD
+(monospace; font-weight: bold; } .note { background: #eaf2f4; padding: 8pt 10pt;) Tj
+0 -1.0 TD
+(border-left: 4px solid #1d5b73; } li { margin: 3pt 0; } .page-break {) Tj
+0 -1.0 TD
+(page-break-before: always; }) Tj
+0 -1.0 TD
+(Tracefinder Project Guide) Tj
+0 -1.0 TD
+(A beginner-friendly explanation of the Java project structure, execution flow, files, objects,) Tj
+0 -1.0 TD
+(and core language concepts.) Tj
+0 -1.0 TD
+(Tracefinder is a command-line application that reads a rulebook CSV and a log file, converts) Tj
+0 -1.0 TD
+(text into Java objects, analyzes the entries, and writes a report.) Tj
+0 -1.0 TD
+(1. What the Project Does) Tj
+0 -1.0 TD
+(rules.csv) Tj
+0 -1.0 TD
+(|) Tj
+0 -1.0 TD
+(RulebookReader) Tj
+0 -1.0 TD
+(|) Tj
+0 -1.0 TD
+(Rulebook object) Tj
+0 -1.0 TD
+() Tj
+0 -1.0 TD
+(logs.txt) Tj
+0 -1.0 TD
+(|) Tj
+0 -1.0 TD
+(LogFileReader) Tj
+0 -1.0 TD
+(|) Tj
+0 -1.0 TD
+(LogEntry objects + MalformedLine objects) Tj
+0 -1.0 TD
+(|) Tj
+0 -1.0 TD
+(LogAnalyzer) Tj
+0 -1.0 TD
+(|) Tj
+0 -1.0 TD
+(AnalysisResult) Tj
+0 -1.0 TD
+(|) Tj
+0 -1.0 TD
+(ReportWriter) Tj
+0 -1.0 TD
+(|) Tj
+0 -1.0 TD
+(output-report.txt) Tj
+0 -1.0 TD
+() Tj
+0 -1.0 TD
+(The application performs five broad jobs: read configuration, read logs, classify and analyze) Tj
+0 -1.0 TD
+(entries, assemble results, and format output.) Tj
+0 -1.0 TD
+(2. Project Structure) Tj
+0 -1.0 TD
+(trace-finder/) Tj
+0 -1.0 TD
+(|- pom.xml) Tj
+0 -1.0 TD
+(|- README.md) Tj
+0 -1.0 TD
+(|- sample-data/) Tj
+0 -1.0 TD
+(| |- rules.csv) Tj
+0 -1.0 TD
+(| `- logs.txt) Tj
+0 -1.0 TD
+(`- src/) Tj
+0 -1.0 TD
+(|- main/java/com/tracefinder/) Tj
+0 -1.0 TD
+(| |- Main.java) Tj
+0 -1.0 TD
+(| |- model/) Tj
+0 -1.0 TD
+(| |- reading/) Tj
+0 -1.0 TD
+ET
+endstream
+endobj
+3 0 obj
+<< /Length 3608 >>
+stream
+BT
+/F1 9 Tf
+42 800 Td
+12 TL
+(| |- processing/) Tj
+0 -1.0 TD
+(| `- writing/) Tj
+0 -1.0 TD
+(`- test/java/com/tracefinder/) Tj
+0 -1.0 TD
+(|- processing/) Tj
+0 -1.0 TD
+(|- reading/) Tj
+0 -1.0 TD
+(`- writing/) Tj
+0 -1.0 TD
+() Tj
+0 -1.0 TD
+(src/main/java contains application code. src/test/java contains automated tests. This is Maven's) Tj
+0 -1.0 TD
+(standard layout, so Maven knows automatically what to compile and test.) Tj
+0 -1.0 TD
+(The com.tracefinder package and its subpackages organize names and responsibilities. The model) Tj
+0 -1.0 TD
+(package represents data, reading parses input, processing applies business rules, and writing) Tj
+0 -1.0 TD
+(creates the report. This separation keeps one class from becoming responsible for everything.) Tj
+0 -1.0 TD
+(3. Program Execution) Tj
+0 -1.0 TD
+(The JVM begins at Main.java's public static void main\(String[] args\). The method validates three) Tj
+0 -1.0 TD
+(command-line arguments, converts them to Path objects, reads the rulebook, reads the log,) Tj
+0 -1.0 TD
+(analyzes the parsed data, and writes the report.) Tj
+0 -1.0 TD
+(Rulebook rulebook = readRulebookOrExit\(rulebookPath\);) Tj
+0 -1.0 TD
+(LogFileReader.ParsedLogFile parsedLogFile = readLogFileOrExit\(logFilePath\);) Tj
+0 -1.0 TD
+(AnalysisResult result = new LogAnalyzer\(\)) Tj
+0 -1.0 TD
+(.analyze\(parsedLogFile.entries\(\), rulebook,) Tj
+0 -1.0 TD
+(parsedLogFile.malformedLines\(\)\);) Tj
+0 -1.0 TD
+(writeReportOrExit\(result, outputPath\);) Tj
+0 -1.0 TD
+() Tj
+0 -1.0 TD
+(Main is an orchestrator. It does not parse, count, sort, or format data itself. That makes the) Tj
+0 -1.0 TD
+(actual rules easier to test independently.) Tj
+0 -1.0 TD
+(4. Build Configuration) Tj
+0 -1.0 TD
+(pom.xml) Tj
+0 -1.0 TD
+(This Maven file identifies the project as com.tracefinder:tracefinder:1.0-SNAPSHOT, requests) Tj
+0 -1.0 TD
+(Java 17, declares JUnit 5 for tests, configures Surefire to run tests, and configures the Shade) Tj
+0 -1.0 TD
+(Plugin to create a runnable JAR whose entry point is com.tracefinder.Main.) Tj
+0 -1.0 TD
+(Maven is a build tool. It downloads dependencies, compiles source files, runs tests, and) Tj
+0 -1.0 TD
+(packages the application.) Tj
+0 -1.0 TD
+(README.md) Tj
+0 -1.0 TD
+(The README documents the architecture, command syntax, business rules, build command, run) Tj
+0 -1.0 TD
+(command, and test command. It is for people using or learning the project; it is not part of the) Tj
+0 -1.0 TD
+(running program.) Tj
+0 -1.0 TD
+(5. Model Classes) Tj
+0 -1.0 TD
+(LogEntry.java) Tj
+0 -1.0 TD
+(A LogEntry represents one successfully parsed line. It stores the line number, LocalDateTime) Tj
+0 -1.0 TD
+(timestamp, level, IP, resource, action, and original text.) Tj
+0 -1.0 TD
+(It is a Java record. A record automatically supplies a constructor, accessors such as) Tj
+0 -1.0 TD
+(entry.level\(\), equals, hashCode, and toString. Records are suitable for data values that do not) Tj
+0 -1.0 TD
+(need much mutable behavior.) Tj
+0 -1.0 TD
+(MalformedLine.java) Tj
+0 -1.0 TD
+(This record stores a line number and raw text for a line that could not be parsed because it was) Tj
+0 -1.0 TD
+(blank, had the wrong number of fields, or had an invalid timestamp.) Tj
+0 -1.0 TD
+(UnknownPatternLine.java) Tj
+0 -1.0 TD
+(This record stores a structurally valid line whose level is not in the rulebook. It is separate) Tj
+0 -1.0 TD
+(from a malformed line because the timestamp and five fields are still usable.) Tj
+0 -1.0 TD
+(Rulebook.java) Tj
+0 -1.0 TD
+(This is a normal class rather than a record because it provides behavior: isKnownLevel,) Tj
+0 -1.0 TD
+(severityOf, levelsInFileOrder, and asMap.) Tj
+0 -1.0 TD
+ET
+endstream
+endobj
+4 0 obj
+<< /Length 4174 >>
+stream
+BT
+/F1 9 Tf
+42 800 Td
+12 TL
+(Its LinkedHashMap<String, Integer> maps levels to severity scores and preserves CSV order.) Tj
+0 -1.0 TD
+(private hides the field, and final prevents the field reference from being replaced after) Tj
+0 -1.0 TD
+(construction.) Tj
+0 -1.0 TD
+(AnalysisResult.java) Tj
+0 -1.0 TD
+(This record is the complete output of analysis: activity counts, flagged entries, IP counts,) Tj
+0 -1.0 TD
+(unknown patterns, and malformed lines. It is the data handoff between processing and writing.) Tj
+0 -1.0 TD
+(6. Reading Classes) Tj
+0 -1.0 TD
+(RulebookReader.java) Tj
+0 -1.0 TD
+(This class reads all CSV lines, skips the header, ignores blank rows, splits each remaining row) Tj
+0 -1.0 TD
+(into two fields, trims the values, parses the score with Integer.parseInt, and builds a) Tj
+0 -1.0 TD
+(Rulebook.) Tj
+0 -1.0 TD
+(RulebookFormatException is a custom checked exception. It communicates that the file could be) Tj
+0 -1.0 TD
+(read but its contents violate the expected format. The caller must catch it or declare it.) Tj
+0 -1.0 TD
+(LogFileReader.java) Tj
+0 -1.0 TD
+(This class reads every log line and assigns one-based line numbers. Its nested ParsedLogFile) Tj
+0 -1.0 TD
+(record groups valid entries and malformed lines in one return value.) Tj
+0 -1.0 TD
+(tryParseLine returns a LogEntry when the line has exactly five fields and a valid timestamp.) Tj
+0 -1.0 TD
+(Otherwise it returns null, and the caller creates a MalformedLine.) Tj
+0 -1.0 TD
+(The reader does not decide whether a level is known. That is a business rule, so it belongs in) Tj
+0 -1.0 TD
+(the processing layer.) Tj
+0 -1.0 TD
+(7. Processing and Business Rules) Tj
+0 -1.0 TD
+(LogAnalyzer.java) Tj
+0 -1.0 TD
+(The analyzer creates four results through private helper methods. Keeping each calculation) Tj
+0 -1.0 TD
+(separate makes the logic easier to read and test.) Tj
+0 -1.0 TD
+(Activity summary: starts every rulebook level at zero, then counts only known levels. The merge) Tj
+0 -1.0 TD
+(method inserts one or increments an existing count.) Tj
+0 -1.0 TD
+(Flagged entries: finds the lowest severity using Collections.min. Every known level above that) Tj
+0 -1.0 TD
+(baseline is flagged. A comparator sorts by severity descending and timestamp ascending.) Tj
+0 -1.0 TD
+(Suspicious activity by IP: counts every valid entry, including unknown levels. A temporary) Tj
+0 -1.0 TD
+(HashMap is used while counting because order does not matter. The final LinkedHashMap preserves) Tj
+0 -1.0 TD
+(sorting by count descending and IP ascending.) Tj
+0 -1.0 TD
+(Unknown patterns: selects valid entries whose levels are absent from the rulebook, converts them) Tj
+0 -1.0 TD
+(to UnknownPatternLine values, and sorts them by original line number.) Tj
+0 -1.0 TD
+(The code uses lambdas such as e -> rulebook.severityOf\(e.level\(\)\) and method references such as) Tj
+0 -1.0 TD
+(LogEntry::timestamp. These are short ways to provide functions to sorting APIs.) Tj
+0 -1.0 TD
+(8. Writing the Report) Tj
+0 -1.0 TD
+(ReportWriter.java) Tj
+0 -1.0 TD
+(The writer receives an AnalysisResult, formats sections into a StringBuilder, and saves the) Tj
+0 -1.0 TD
+(result with Files.writeString.) Tj
+0 -1.0 TD
+(The report includes the generated time, activity summary, flagged entries, suspicious IP counts,) Tj
+0 -1.0 TD
+(unknown patterns, and malformed lines. The original raw lines are retained so the report can) Tj
+0 -1.0 TD
+(show exactly what appeared in the source file.) Tj
+0 -1.0 TD
+(StringBuilder is appropriate for constructing text incrementally. The writer uses Map.Entry to) Tj
+0 -1.0 TD
+(iterate over key-value pairs in the maps.) Tj
+0 -1.0 TD
+(9. Tests) Tj
+0 -1.0 TD
+(LogAnalyzerTest.java) Tj
+0 -1.0 TD
+(This JUnit class verifies activity counts, rulebook order, flagging, severity and time sorting,) Tj
+0 -1.0 TD
+(IP sorting, and unknown-pattern order. Helper methods create test objects without repeating the) Tj
+0 -1.0 TD
+(full constructor call.) Tj
+0 -1.0 TD
+(LogFileReaderTest.java) Tj
+0 -1.0 TD
+(This class uses temporary files to test valid lines, blank lines, missing fields, wrong) Tj
+0 -1.0 TD
+(delimiters, bad timestamps, and unknown levels. It proves that unknown levels remain valid) Tj
+0 -1.0 TD
+ET
+endstream
+endobj
+5 0 obj
+<< /Length 1940 >>
+stream
+BT
+/F1 9 Tf
+42 800 Td
+12 TL
+(entries while malformed syntax does not.) Tj
+0 -1.0 TD
+(There is currently no ReportWriterTest.java in the workspace, so formatting is not directly) Tj
+0 -1.0 TD
+(covered by an automated test.) Tj
+0 -1.0 TD
+(10. Sample Data) Tj
+0 -1.0 TD
+(sample-data/rules.csv) Tj
+0 -1.0 TD
+(The sample rulebook defines INFO -> 1, WARN -> 3, ERROR -> 5, and ALERT -> 9. INFO becomes the) Tj
+0 -1.0 TD
+(baseline, while the other known levels are flagged.) Tj
+0 -1.0 TD
+(sample-data/logs.txt) Tj
+0 -1.0 TD
+(The sample log demonstrates normal entries, unknown levels such as CRIT and TRACE, lowercase) Tj
+0 -1.0 TD
+(levels, blank lines, missing fields, wrong delimiters, and invalid timestamps.) Tj
+0 -1.0 TD
+(Level matching is case-sensitive: INFO is known, but info is unknown.) Tj
+0 -1.0 TD
+(11. Why This Design?) Tj
+0 -1.0 TD
+(The project separates concerns so each class has a focused responsibility. A single large method) Tj
+0 -1.0 TD
+(could do all of this, but it would mix filesystem operations, parsing, business rules, sorting,) Tj
+0 -1.0 TD
+(and presentation. That would make changes and tests harder.) Tj
+0 -1.0 TD
+(The collection choices also match the jobs: List preserves sequences, HashMap supports counting) Tj
+0 -1.0 TD
+(without ordering requirements, and LinkedHashMap preserves a deliberate output order.) Tj
+0 -1.0 TD
+(This is intentionally a small learning project. A production version might use a full CSV) Tj
+0 -1.0 TD
+(parser, immutable defensive copies in Rulebook, stronger validation, and more writer tests. The) Tj
+0 -1.0 TD
+(current design keeps the fundamental ideas visible.) Tj
+0 -1.0 TD
+(12. Commands) Tj
+0 -1.0 TD
+(mvn clean package) Tj
+0 -1.0 TD
+(java -jar target/tracefinder-1.0-SNAPSHOT.jar \\) Tj
+0 -1.0 TD
+(sample-data/rules.csv \\) Tj
+0 -1.0 TD
+(sample-data/logs.txt \\) Tj
+0 -1.0 TD
+(sample-data/output-report.txt) Tj
+0 -1.0 TD
+() Tj
+0 -1.0 TD
+(mvn test) Tj
+0 -1.0 TD
+() Tj
+0 -1.0 TD
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 2 0 R >>
+endobj
+7 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 3 0 R >>
+endobj
+8 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 4 0 R >>
+endobj
+9 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 5 0 R >>
+endobj
+10 0 obj
+<< /Type /Pages /Kids [6 0 R 7 0 R 8 0 R 9 0 R] /Count 4 >>
+endobj
+11 0 obj
+<< /Type /Catalog /Pages 10 0 R >>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000015 00000 n 
+0000000085 00000 n 
+0000002650 00000 n 
+0000006310 00000 n 
+0000010536 00000 n 
+0000012528 00000 n 
+0000012655 00000 n 
+0000012782 00000 n 
+0000012909 00000 n 
+0000013036 00000 n 
+0000013112 00000 n 
+trailer
+<< /Size 12 /Root 11 0 R >>
+startxref
+13163
+%%EOF

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tracefinder Project Guide</title>
+<style>
+@page { size: A4; margin: 18mm 16mm; }
+body { font-family: Georgia, serif; color: #20252b; line-height: 1.45; font-size: 10.5pt; }
+h1 { color: #173b57; font-size: 28pt; margin-bottom: 4pt; }
+h2 { color: #1d5b73; border-bottom: 1px solid #9eb8c5; padding-bottom: 3pt; margin-top: 20pt; page-break-after: avoid; }
+h3 { color: #315f68; margin-bottom: 2pt; page-break-after: avoid; }
+p { margin: 5pt 0; }
+code, pre { font-family: Consolas, monospace; }
+code { background: #eef3f4; padding: 1px 3px; }
+pre { background: #f1f5f5; border-left: 3px solid #4d8790; padding: 8pt; white-space: pre-wrap; font-size: 8.5pt; }
+.file { color: #7a3e22; font-family: Consolas, monospace; font-weight: bold; }
+.note { background: #eaf2f4; padding: 8pt 10pt; border-left: 4px solid #1d5b73; }
+li { margin: 3pt 0; }
+.page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+<h1>Tracefinder Project Guide</h1>
+<p><strong>A beginner-friendly explanation of the Java project structure, execution flow, files, objects, and core language concepts.</strong></p>
+<p class="note">Tracefinder is a command-line application that reads a rulebook CSV and a log file, converts text into Java objects, analyzes the entries, and writes a report.</p>
+
+<h2>1. What the Project Does</h2>
+<pre>rules.csv
+   |
+RulebookReader
+   |
+Rulebook object
+
+logs.txt
+   |
+LogFileReader
+   |
+LogEntry objects + MalformedLine objects
+   |
+LogAnalyzer
+   |
+AnalysisResult
+   |
+ReportWriter
+   |
+output-report.txt</pre>
+<p>The application performs five broad jobs: read configuration, read logs, classify and analyze entries, assemble results, and format output.</p>
+
+<h2>2. Project Structure</h2>
+<pre>trace-finder/
+|- pom.xml
+|- README.md
+|- sample-data/
+|  |- rules.csv
+|  `- logs.txt
+`- src/
+   |- main/java/com/tracefinder/
+   |  |- Main.java
+   |  |- model/
+   |  |- reading/
+   |  |- processing/
+   |  `- writing/
+   `- test/java/com/tracefinder/
+      |- processing/
+      |- reading/
+      `- writing/</pre>
+<p><code>src/main/java</code> contains application code. <code>src/test/java</code> contains automated tests. This is Maven's standard layout, so Maven knows automatically what to compile and test.</p>
+<p>The <code>com.tracefinder</code> package and its subpackages organize names and responsibilities. The model package represents data, reading parses input, processing applies business rules, and writing creates the report. This separation keeps one class from becoming responsible for everything.</p>
+
+<h2>3. Program Execution</h2>
+<p>The JVM begins at <span class="file">Main.java</span>'s <code>public static void main(String[] args)</code>. The method validates three command-line arguments, converts them to <code>Path</code> objects, reads the rulebook, reads the log, analyzes the parsed data, and writes the report.</p>
+<pre>Rulebook rulebook = readRulebookOrExit(rulebookPath);
+LogFileReader.ParsedLogFile parsedLogFile = readLogFileOrExit(logFilePath);
+AnalysisResult result = new LogAnalyzer()
+        .analyze(parsedLogFile.entries(), rulebook,
+                 parsedLogFile.malformedLines());
+writeReportOrExit(result, outputPath);</pre>
+<p><code>Main</code> is an orchestrator. It does not parse, count, sort, or format data itself. That makes the actual rules easier to test independently.</p>
+
+<h2>4. Build Configuration</h2>
+<h3><span class="file">pom.xml</span></h3>
+<p>This Maven file identifies the project as <code>com.tracefinder:tracefinder:1.0-SNAPSHOT</code>, requests Java 17, declares JUnit 5 for tests, configures Surefire to run tests, and configures the Shade Plugin to create a runnable JAR whose entry point is <code>com.tracefinder.Main</code>.</p>
+<p>Maven is a build tool. It downloads dependencies, compiles source files, runs tests, and packages the application.</p>
+<h3><span class="file">README.md</span></h3>
+<p>The README documents the architecture, command syntax, business rules, build command, run command, and test command. It is for people using or learning the project; it is not part of the running program.</p>
+
+<h2>5. Model Classes</h2>
+<h3><span class="file">LogEntry.java</span></h3>
+<p>A <code>LogEntry</code> represents one successfully parsed line. It stores the line number, <code>LocalDateTime</code> timestamp, level, IP, resource, action, and original text.</p>
+<p>It is a Java <code>record</code>. A record automatically supplies a constructor, accessors such as <code>entry.level()</code>, <code>equals</code>, <code>hashCode</code>, and <code>toString</code>. Records are suitable for data values that do not need much mutable behavior.</p>
+<h3><span class="file">MalformedLine.java</span></h3>
+<p>This record stores a line number and raw text for a line that could not be parsed because it was blank, had the wrong number of fields, or had an invalid timestamp.</p>
+<h3><span class="file">UnknownPatternLine.java</span></h3>
+<p>This record stores a structurally valid line whose level is not in the rulebook. It is separate from a malformed line because the timestamp and five fields are still usable.</p>
+<h3><span class="file">Rulebook.java</span></h3>
+<p>This is a normal class rather than a record because it provides behavior: <code>isKnownLevel</code>, <code>severityOf</code>, <code>levelsInFileOrder</code>, and <code>asMap</code>.</p>
+<p>Its <code>LinkedHashMap&lt;String, Integer&gt;</code> maps levels to severity scores and preserves CSV order. <code>private</code> hides the field, and <code>final</code> prevents the field reference from being replaced after construction.</p>
+<h3><span class="file">AnalysisResult.java</span></h3>
+<p>This record is the complete output of analysis: activity counts, flagged entries, IP counts, unknown patterns, and malformed lines. It is the data handoff between processing and writing.</p>
+
+<h2>6. Reading Classes</h2>
+<h3><span class="file">RulebookReader.java</span></h3>
+<p>This class reads all CSV lines, skips the header, ignores blank rows, splits each remaining row into two fields, trims the values, parses the score with <code>Integer.parseInt</code>, and builds a <code>Rulebook</code>.</p>
+<p><code>RulebookFormatException</code> is a custom checked exception. It communicates that the file could be read but its contents violate the expected format. The caller must catch it or declare it.</p>
+<h3><span class="file">LogFileReader.java</span></h3>
+<p>This class reads every log line and assigns one-based line numbers. Its nested <code>ParsedLogFile</code> record groups valid entries and malformed lines in one return value.</p>
+<p><code>tryParseLine</code> returns a <code>LogEntry</code> when the line has exactly five fields and a valid timestamp. Otherwise it returns <code>null</code>, and the caller creates a <code>MalformedLine</code>.</p>
+<p>The reader does not decide whether a level is known. That is a business rule, so it belongs in the processing layer.</p>
+
+<h2>7. Processing and Business Rules</h2>
+<h3><span class="file">LogAnalyzer.java</span></h3>
+<p>The analyzer creates four results through private helper methods. Keeping each calculation separate makes the logic easier to read and test.</p>
+<p><strong>Activity summary:</strong> starts every rulebook level at zero, then counts only known levels. The <code>merge</code> method inserts one or increments an existing count.</p>
+<p><strong>Flagged entries:</strong> finds the lowest severity using <code>Collections.min</code>. Every known level above that baseline is flagged. A comparator sorts by severity descending and timestamp ascending.</p>
+<p><strong>Suspicious activity by IP:</strong> counts every valid entry, including unknown levels. A temporary <code>HashMap</code> is used while counting because order does not matter. The final <code>LinkedHashMap</code> preserves sorting by count descending and IP ascending.</p>
+<p><strong>Unknown patterns:</strong> selects valid entries whose levels are absent from the rulebook, converts them to <code>UnknownPatternLine</code> values, and sorts them by original line number.</p>
+<p>The code uses lambdas such as <code>e -&gt; rulebook.severityOf(e.level())</code> and method references such as <code>LogEntry::timestamp</code>. These are short ways to provide functions to sorting APIs.</p>
+
+<h2>8. Writing the Report</h2>
+<h3><span class="file">ReportWriter.java</span></h3>
+<p>The writer receives an <code>AnalysisResult</code>, formats sections into a <code>StringBuilder</code>, and saves the result with <code>Files.writeString</code>.</p>
+<p>The report includes the generated time, activity summary, flagged entries, suspicious IP counts, unknown patterns, and malformed lines. The original raw lines are retained so the report can show exactly what appeared in the source file.</p>
+<p><code>StringBuilder</code> is appropriate for constructing text incrementally. The writer uses <code>Map.Entry</code> to iterate over key-value pairs in the maps.</p>
+
+<h2>9. Tests</h2>
+<h3><span class="file">LogAnalyzerTest.java</span></h3>
+<p>This JUnit class verifies activity counts, rulebook order, flagging, severity and time sorting, IP sorting, and unknown-pattern order. Helper methods create test objects without repeating the full constructor call.</p>
+<h3><span class="file">LogFileReaderTest.java</span></h3>
+<p>This class uses temporary files to test valid lines, blank lines, missing fields, wrong delimiters, bad timestamps, and unknown levels. It proves that unknown levels remain valid entries while malformed syntax does not.</p>
+<p>There is currently no <code>ReportWriterTest.java</code> in the workspace, so formatting is not directly covered by an automated test.</p>
+
+<h2>10. Sample Data</h2>
+<h3><span class="file">sample-data/rules.csv</span></h3>
+<p>The sample rulebook defines <code>INFO -&gt; 1</code>, <code>WARN -&gt; 3</code>, <code>ERROR -&gt; 5</code>, and <code>ALERT -&gt; 9</code>. INFO becomes the baseline, while the other known levels are flagged.</p>
+<h3><span class="file">sample-data/logs.txt</span></h3>
+<p>The sample log demonstrates normal entries, unknown levels such as <code>CRIT</code> and <code>TRACE</code>, lowercase levels, blank lines, missing fields, wrong delimiters, and invalid timestamps.</p>
+<p>Level matching is case-sensitive: <code>INFO</code> is known, but <code>info</code> is unknown.</p>
+
+<h2>11. Why This Design?</h2>
+<p>The project separates concerns so each class has a focused responsibility. A single large method could do all of this, but it would mix filesystem operations, parsing, business rules, sorting, and presentation. That would make changes and tests harder.</p>
+<p>The collection choices also match the jobs: <code>List</code> preserves sequences, <code>HashMap</code> supports counting without ordering requirements, and <code>LinkedHashMap</code> preserves a deliberate output order.</p>
+<p>This is intentionally a small learning project. A production version might use a full CSV parser, immutable defensive copies in <code>Rulebook</code>, stronger validation, and more writer tests. The current design keeps the fundamental ideas visible.</p>
+
+<h2>12. Commands</h2>
+<pre>mvn clean package
+java -jar target/tracefinder-1.0-SNAPSHOT.jar \
+  sample-data/rules.csv \
+  sample-data/logs.txt \
+  sample-data/output-report.txt
+
+mvn test</pre>
+</body>
+</html>
